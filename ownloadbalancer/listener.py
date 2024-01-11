@@ -1,13 +1,40 @@
 from typing import Any
-from ownloadbalancer.config.config import load_config
+from ownloadbalancer.config.config import Config, load_config
 from typing import List, Dict
+from socket import socket, AF_INET, SOCK_STREAM
+from threading import Thread
 
 
 class Listener:
-    def __init__(self, config_file: str = "config.json") -> None:
-        self.config: Dict = load_config(config_file)
-        self.port: int = self.config["port"]
-        self.log_file: str = self.config["log_file"]
-        self.server_list: List = self.config["server_list"]
+    def __init__(self, config_file: str = 'config.json') -> None:
+        self.config: Config = load_config(config_file)
+        self.port: int = self.config.port
+        self.servers: List = self.config.servers
 
-    
+    def on_connect(self, socket: socket) -> None:
+        pass
+        # backend = choose(self.servers)
+        # backend.rev_proxy(socket)
+        
+
+    def start(self) -> None:
+        proxy_threads: List[Thread] = []
+        sock = socket(AF_INET, SOCK_STREAM)
+        try:
+            sock.bind(("127.0.0.1", self.port))
+            sock.listen(1000)
+            print(f"[+] Listening on port {self.port}")
+            while True:
+                client, client_addr = sock.accept()
+                print(f"[+] Accepted connection from {client_addr[0]}:{client_addr[1]}")
+                proxy_thread = Thread(target=self.on_connect, args=(client,))
+                proxy_thread.start()
+                proxy_threads.append(proxy_thread)
+        except KeyboardInterrupt:
+            print("[!] Shutting down")
+        except Exception as e:
+            print(f"[-] Error: {e}")
+        finally:
+            sock.close()
+            for proxy_thread in proxy_threads:
+                proxy_thread.join()
