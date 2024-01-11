@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "ownloadbalancer"
+version = "0.1.0"
+description = "LoadBalancer John Criket's Coding Challenges"
+authors = ["Perchinka <alexsator.lukin@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pytest = "^7.4.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
