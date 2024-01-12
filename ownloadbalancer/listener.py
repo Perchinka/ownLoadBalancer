@@ -24,8 +24,13 @@ class Listener:
             sock.bind(("127.0.0.1", self.port))
             sock.listen(1000)
             print(f"[+] Listening on port {self.port}")
+
+            # TODO: Add stop method/flag
             while True:
                 client, client_addr = sock.accept()
+                
+                # TODO: Add different algorithm for choosing backend server (Round Robin, Least Connections, Weighted Round Robin (mb))
+
                 print(f"[+] Accepted connection from {client_addr[0]}:{client_addr[1]}")
                 proxy_thread = Thread(target=self.on_connect, args=(client,))
                 proxy_thread.start()
@@ -38,3 +43,4 @@ class Listener:
             sock.close()
             for proxy_thread in proxy_threads:
                 proxy_thread.join()
+

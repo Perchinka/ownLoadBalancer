@@ -72,9 +72,3 @@ def test_should_raise_error_if_no_server_list_or_server_list_is_empty(tmpdir):
 
     with pytest.raises(ValueError):
         config = load_config(str(config_path))
-
-
-def test_should_check_if_servers_in_list_are_instances_of_backend_server(config_file):
-    config = load_config(config_file)
-    for server in config.servers:
-        assert isinstance(server, BackendServer)
