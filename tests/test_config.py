@@ -1,6 +1,8 @@
 import pytest
 from ownloadbalancer.config.config import load_config
 from ownloadbalancer.backend_server import BackendServer
+from ownloadbalancer.algorithms.algorithms import algorithms, RoundRobin, LeastConnection, Random
+
 import json
 
 
@@ -8,6 +10,7 @@ import json
 def config_file(tmpdir):
     config_data = {
         "port": 16320,
+        "algorithm": "round_robin",
         "servers": [
             {
                 "host": "127.0.0.1",
@@ -72,3 +75,62 @@ def test_should_raise_error_if_no_server_list_or_server_list_is_empty(tmpdir):
 
     with pytest.raises(ValueError):
         config = load_config(str(config_path))
+
+
+def test_config_should_have_round_robin_algorithm_type_if_no_algorithm_specified(tmpdir):
+    config_data = {
+        "port": 16320,
+        "servers": [
+            {
+                "host": "127.0.0.1",
+                "port": 1337
+            },
+        ]
+    }
+
+    config_path = tmpdir.join("config.json")
+    config_path.write(json.dumps(config_data))
+
+    config = load_config(str(config_path))
+    assert isinstance(config.algorithm, RoundRobin) 
+
+
+def test_config_should_raise_error_if_algorithm_is_invalid(tmpdir):
+    config_data = {
+        "port": 16320,
+        "algorithm": "invalid_algorithm",
+        "servers": [
+            {
+                "host": "127.0.0.1",
+                "port": 1337
+            },
+        ]
+    }
+
+    config_path = tmpdir.join("config.json")
+    config_path.write(json.dumps(config_data))
+
+    with pytest.raises(ValueError):
+        config = load_config(str(config_path))
+
+
+def test_config_should_have_algorithm_if_algorithm_is_valid(tmpdir):
+    config_data = {
+        "port": 16320,
+        "algorithm": "least_connection",
+        "servers": [
+            {
+                "host": "127.0.0.1",
+                "port": 1337
+            },
+        ]
+    }
+
+    config_path = tmpdir.join("config.json")
+    config_path.write(json.dumps(config_data))
+
+    config = load_config(str(config_path))
+    assert isinstance(config.algorithm, LeastConnection)
+
+
+
