@@ -1,0 +1,65 @@
+# Compiled object files
+*.o
+
+# Compiled binaries
+*.out
+*.exe
+bin/
+
+# Libraries
+*.a
+*.so
+*.dll
+*.dylib
+
+# Debug files
+*.dSYM/
+*.stackdump
+vgcore.*
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+*.pid
+*.gz
+
+# Build directories
+build/
+dist/
+*.build/
+
+# IDE-specific files
+.vscode/
+.idea/
+*.code-workspace
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Coverage reports
+*.gcda
+*.gcno
+*.gcov
+
+# Test binaries and output
+tests/*.out
+tests/*.exe
+tests/*.o
+
+# Generated documentation
+docs/*.html
+docs/*.pdf
+docs/*.xml
+
+# Configuration files
+loadbalancer.conf
+*.conf.bak
+
+# Backup files
+*~
+*.old
+
