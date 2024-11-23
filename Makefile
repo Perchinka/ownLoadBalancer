@@ -16,7 +16,7 @@ $(TARGET): $(OBJ)
 clean:
 	rm -rf bin src/*.o
 
-run: $(TARGET)
+run: clean $(TARGET)
 	./$(TARGET)
 
 test: 
