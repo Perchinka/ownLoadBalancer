@@ -16,10 +16,6 @@ $(TARGET): $(OBJ)
 clean:
 	rm -rf bin src/*.o
 
-run: clean $(TARGET)
-	./$(TARGET)
-
 test: 
 	$(CC) $(CFLAGS) -o bin/test tests/test_loadbalancer.c src/loadbalancer.c src/utils.c
 	./bin/test
-

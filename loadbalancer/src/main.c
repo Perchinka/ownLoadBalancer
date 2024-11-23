@@ -10,8 +10,8 @@
 #include <time.h>
 #include <unistd.h>
 
-#define PORT 7070
 #define BUF_SIZE 1024
+#define PORT 7070
 
 int server_fd;
 
@@ -25,6 +25,8 @@ void handle_signal(int signal) {
 
   exit(0);
 }
+
+int choose_server(int *servers[]) { return *servers[0]; }
 
 void *handle_client(void *arg) {
   int client_fd = *(int *)arg;
@@ -45,6 +47,7 @@ void *handle_client(void *arg) {
       perror("Read Error");
       break;
     }
+
     printf("Recieved: %s\n", buffer);
   }
 
@@ -52,7 +55,7 @@ void *handle_client(void *arg) {
   pthread_exit(NULL);
 }
 
-int main(int argc, char *argv[]) {
+void loadbalancer() {
   struct sockaddr_in address;
   int addrlen = sizeof(address);
 
@@ -80,7 +83,7 @@ int main(int argc, char *argv[]) {
     exit(EXIT_FAILURE);
   }
 
-  printf("Server is listening on the port %d\n", PORT);
+  printf("Loadbalancer is listening on the port %d\n", PORT);
 
   while (1) {
     int *client_fd = malloc(sizeof(int));
@@ -101,5 +104,6 @@ int main(int argc, char *argv[]) {
   }
 
   close(server_fd);
-  return 0;
 }
+
+int main(int argc, char *argv[]) { return 0; }

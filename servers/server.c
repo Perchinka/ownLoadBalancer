@@ -48,7 +48,7 @@ void *handle_client(void *arg) {
 
     const char *http_response = "HTTP/1.1 200 OK\r\n"
                                 "Content-Type: text/plain\r\n"
-                                "Content-Length: 18\r\n" // Length of the body
+                                "Content-Length: 18\r\n"
                                 "\r\n"
                                 "Hello from backend";
 
