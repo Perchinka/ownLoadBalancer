@@ -15,11 +15,13 @@
 int server_fd;
 
 void handle_signal(int signal) {
-  printf("\nSignal %d received. Shutting down server...\n", signal);
+  fprintf(stdout, "\nSignal %d received. Shutting down server...\n", signal);
+  fflush(stdout);
 
   if (server_fd >= 0) {
     close(server_fd);
-    printf("Server socket closed.\n");
+    fprintf(stdout, "Server socket closed.\n");
+    fflush(stdout);
   }
 
   exit(0);
@@ -36,24 +38,28 @@ void *handle_client(void *arg) {
     valread = read(client_fd, buffer, BUF_SIZE);
 
     if (valread == 0) {
-      printf("Client disconnected\n");
+      // fprintf(stdout, "Client disconnected\n\n");
+      // fflush(stdout);
       break;
     }
 
     if (valread < 0) {
       perror("Read Error");
+      fflush(stderr);
       break;
     }
-    printf("Recieved: %s\n", buffer);
+    fprintf(stdout, "Recieved: %s\n", buffer);
+    fflush(stdout);
 
     const char *http_response = "HTTP/1.1 200 OK\r\n"
                                 "Content-Type: text/plain\r\n"
-                                "Content-Length: 18\r\n"
+                                "Content-Length: 19\r\n"
                                 "\r\n"
-                                "Hello from backend";
+                                "Hello from backend\n";
 
     if (send(client_fd, http_response, strlen(http_response), 0) < 0) {
       perror("Send Error");
+      fflush(stderr);
       close(client_fd);
       pthread_exit(NULL);
     }
@@ -74,6 +80,7 @@ void server(int port) {
 
   if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
     perror("Socket failed");
+    fflush(stderr);
     exit(EXIT_FAILURE);
   }
 
@@ -83,23 +90,27 @@ void server(int port) {
 
   if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
     perror("Bind failed");
+    fflush(stderr);
     close(server_fd);
     exit(EXIT_FAILURE);
   }
 
   if (listen(server_fd, 3) < 0) {
     perror("Listen failed");
+    fflush(stderr);
     close(server_fd);
     exit(EXIT_FAILURE);
   }
 
-  printf("Server is listening on the port %d\n", port);
+  fprintf(stdout, "Server is listening on the port %d\n", port);
+  fflush(stdout);
 
   while (1) {
     int *client_fd = malloc(sizeof(int));
     if ((*client_fd = accept(server_fd, (struct sockaddr *)&address,
                              (socklen_t *)&addrlen)) < 0) {
       perror("Accept failed");
+      fflush(stderr);
       free(client_fd);
       continue;
     }
@@ -108,6 +119,7 @@ void server(int port) {
     if (pthread_create(&thread_id, NULL, handle_client, (void *)client_fd) !=
         0) {
       perror("Failed to create thread");
+      fflush(stderr);
       close(*client_fd);
       free(client_fd);
     }
