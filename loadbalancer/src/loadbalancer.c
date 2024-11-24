@@ -12,7 +12,6 @@
 #include <unistd.h>
 
 #define BUF_SIZE 1024
-#define PORT 7070
 #define MAX_BACKENDS 10
 
 int server_fd;
@@ -81,7 +80,7 @@ void *handle_client(void *arg) {
   pthread_exit(NULL);
 }
 
-void loadbalancer() {
+void loadbalancer(const int listen_port) {
   struct sockaddr_in address;
   int addrlen = sizeof(address);
 
@@ -96,7 +95,7 @@ void loadbalancer() {
 
   address.sin_family = AF_INET;
   address.sin_addr.s_addr = INADDR_ANY;
-  address.sin_port = htons(PORT);
+  address.sin_port = htons(listen_port);
 
   if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
     perror("Bind failed");
@@ -112,7 +111,7 @@ void loadbalancer() {
     exit(EXIT_FAILURE);
   }
 
-  printf("Loadbalancer is listening on the port %d\n", PORT);
+  printf("Loadbalancer is listening on the port %d\n", listen_port);
   fflush(stdout);
 
   while (1) {
@@ -216,15 +215,21 @@ void connect_to_backend(const char *host_port_list) {
 
 int main(int argc, char *argv[]) {
   const char *backend_env = getenv("BACKEND_SERVERS");
+  const int loadbalancer_port = atoi(getenv("LOADBALANCER_PORT"));
   if (!backend_env) {
     fprintf(stderr, "Environment variable BACKEND_SERVERS is not set.\n");
+    fflush(stderr);
+    return EXIT_FAILURE;
+  }
+  if (!loadbalancer_port) {
+    fprintf(stderr, "Environment variable LOADBALANCER_PORT is not set.\n");
     fflush(stderr);
     return EXIT_FAILURE;
   }
 
   connect_to_backend(backend_env);
 
-  loadbalancer();
+  loadbalancer(loadbalancer_port);
 
   return 0;
 }

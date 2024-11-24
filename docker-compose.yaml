@@ -1,20 +1,6 @@
 version: "3.8"
 
 services:
-  # Define the loadbalancer service
-  loadbalancer:
-    build:
-      context: ./loadbalancer
-      dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
-    depends_on:
-      - server1
-      - server2
-      - server3
-    environment:
-      SERVERS: "http://server1:8001,http://server2:8002,http://server3:8003"
-  
   server1:
     build:
       context: ./servers
@@ -22,7 +8,7 @@ services:
     ports:
       - "8001:8001"
     command: ["8001"]
-
+    
   server2:
     build:
       context: ./servers
@@ -38,4 +24,16 @@ services:
     ports:
       - "8003:8003"
     command: ["8003"]
+
+  loadbalancer:
+    build:
+      context: ./loadbalancer
+      dockerfile: Dockerfile
+    env_file: ".env"
+    ports:
+      - "8080:8080"
+    depends_on:
+      - server1
+      - server2
+      - server3
 
