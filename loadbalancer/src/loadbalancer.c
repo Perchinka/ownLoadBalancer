@@ -1,5 +1,6 @@
 #include <arpa/inet.h>
 #include <bits/pthreadtypes.h>
+#include <netdb.h>
 #include <netinet/in.h>
 #include <pthread.h>
 #include <signal.h>
@@ -145,19 +146,22 @@ int establish_socket(const char *host, int port) {
     return -1;
   }
 
-  struct sockaddr_in server_addr = {0};
-  server_addr.sin_family = AF_INET;
-  server_addr.sin_port = htons(port);
+  struct addrinfo hints, *res;
+  memset(&hints, 0, sizeof(hints));
+  hints.ai_family = AF_INET;
+  hints.ai_socktype = SOCK_STREAM;
 
-  if (inet_pton(AF_INET, host, &server_addr.sin_addr) <= 0) {
-    fprintf(stderr, "Invalid address: %s\n", host);
+  char port_str[6];
+  snprintf(port_str, sizeof(port_str), "%d", port);
+
+  if (getaddrinfo(host, port_str, &hints, &res) != 0) {
+    fprintf(stderr, "Failed to resolve host: %s\n", host);
     fflush(stderr);
     close(sock_fd);
     return -1;
   }
 
-  if (connect(sock_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) <
-      0) {
+  if (connect(sock_fd, res->ai_addr, res->ai_addrlen) < 0) {
     perror("Connection failed");
     fflush(stderr);
     close(sock_fd);
